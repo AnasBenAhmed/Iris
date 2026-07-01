@@ -1,12 +1,142 @@
-﻿<Window x:Class="Iris.App.MainWindow"
+<Window x:Class="Iris.App.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:Iris.App"
-        mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800">
-    <Grid>
+        xmlns:conv="clr-namespace:Iris.App.Converters"
+        Title="Iris" Height="760" Width="1160"
+        Background="{StaticResource BgBrush}">
+    <Window.Resources>
+        <conv:BytesToImageConverter x:Key="BytesToImage"/>
+        <conv:EnumToBoolConverter x:Key="EnumToBool"/>
+        <conv:FileNameToImageConverter x:Key="FileNameToImage"/>
+    </Window.Resources>
 
+    <Grid Margin="22">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="360"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Left: controls -->
+            <ScrollViewer Grid.Column="0" Margin="0,0,20,0" VerticalScrollBarVisibility="Auto">
+                <StackPanel>
+                    <TextBlock Text="IRIS" Foreground="{StaticResource GoldBrush}" FontSize="30" FontWeight="Bold"/>
+                    <TextBlock Text="AI image generator" Foreground="{StaticResource MutedBrush}" FontSize="12" Margin="2,0,0,0"/>
+
+                    <TextBlock Text="Describe your image" Foreground="{StaticResource MutedBrush}" Margin="0,18,0,6"/>
+                    <TextBox Text="{Binding Prompt, UpdateSourceTrigger=PropertyChanged}"
+                             AcceptsReturn="True" Height="110" TextWrapping="Wrap" VerticalContentAlignment="Top"
+                             Background="{StaticResource SurfaceBrush}" Foreground="{StaticResource TextBrush}"
+                             CaretBrush="{StaticResource GoldBrush}" BorderThickness="0" Padding="10"/>
+
+                    <TextBlock Text="Style" Foreground="{StaticResource MutedBrush}" Margin="0,16,0,6"/>
+                    <WrapPanel>
+                        <RadioButton Content="None"           IsChecked="{Binding Style, Converter={StaticResource EnumToBool}, ConverterParameter=None}"           Foreground="{StaticResource TextBrush}" Margin="0,0,12,6"/>
+                        <RadioButton Content="Photorealistic" IsChecked="{Binding Style, Converter={StaticResource EnumToBool}, ConverterParameter=Photorealistic}" Foreground="{StaticResource TextBrush}" Margin="0,0,12,6"/>
+                        <RadioButton Content="Cinematic"      IsChecked="{Binding Style, Converter={StaticResource EnumToBool}, ConverterParameter=Cinematic}"      Foreground="{StaticResource TextBrush}" Margin="0,0,12,6"/>
+                        <RadioButton Content="Anime"          IsChecked="{Binding Style, Converter={StaticResource EnumToBool}, ConverterParameter=Anime}"          Foreground="{StaticResource TextBrush}" Margin="0,0,12,6"/>
+                        <RadioButton Content="Concept Art"    IsChecked="{Binding Style, Converter={StaticResource EnumToBool}, ConverterParameter=ConceptArt}"     Foreground="{StaticResource TextBrush}" Margin="0,0,12,6"/>
+                        <RadioButton Content="3D"             IsChecked="{Binding Style, Converter={StaticResource EnumToBool}, ConverterParameter=Render3D}"       Foreground="{StaticResource TextBrush}" Margin="0,0,12,6"/>
+                    </WrapPanel>
+
+                    <TextBlock Text="Aspect" Foreground="{StaticResource MutedBrush}" Margin="0,10,0,6"/>
+                    <WrapPanel>
+                        <RadioButton Content="Square"    IsChecked="{Binding Aspect, Converter={StaticResource EnumToBool}, ConverterParameter=Square}"    Foreground="{StaticResource TextBrush}" Margin="0,0,14,0"/>
+                        <RadioButton Content="Portrait"  IsChecked="{Binding Aspect, Converter={StaticResource EnumToBool}, ConverterParameter=Portrait}"  Foreground="{StaticResource TextBrush}" Margin="0,0,14,0"/>
+                        <RadioButton Content="Landscape" IsChecked="{Binding Aspect, Converter={StaticResource EnumToBool}, ConverterParameter=Landscape}" Foreground="{StaticResource TextBrush}"/>
+                    </WrapPanel>
+
+                    <TextBlock Text="Seed" Foreground="{StaticResource MutedBrush}" Margin="0,16,0,6"/>
+                    <DockPanel>
+                        <Button DockPanel.Dock="Right" Content="🎲" Width="42" Height="34"
+                                Command="{Binding RandomizeSeedCommand}"
+                                Background="{StaticResource SurfaceBrush}" Foreground="{StaticResource TextBrush}" BorderThickness="0"/>
+                        <TextBox Text="{Binding Seed}" Background="{StaticResource SurfaceBrush}" Foreground="{StaticResource TextBrush}"
+                                 CaretBrush="{StaticResource GoldBrush}" BorderThickness="0" Padding="8" Margin="0,0,8,0" VerticalContentAlignment="Center"/>
+                    </DockPanel>
+
+                    <Button Content="Generate" Style="{StaticResource GenerateButton}" Margin="0,22,0,0"
+                            Command="{Binding GenerateCommand}"/>
+                    <Button Content="Cancel" Margin="0,8,0,0" Height="34"
+                            Command="{Binding CancelCommand}"
+                            Background="{StaticResource SurfaceBrush}" Foreground="{StaticResource TextBrush}" BorderThickness="0"
+                            Visibility="{Binding IsGenerating, Converter={x:Static conv:BoolToVis.Instance}}"/>
+
+                    <TextBlock Text="Recent prompts" Foreground="{StaticResource MutedBrush}" Margin="0,20,0,6"
+                               Visibility="{Binding HistoryItems.Count, Converter={x:Static conv:CountToVis.Instance}}"/>
+                    <ItemsControl ItemsSource="{Binding HistoryItems}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate><WrapPanel/></ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button Content="{Binding}" MaxWidth="330" Margin="0,0,6,6" Padding="8,4"
+                                        Background="{StaticResource SurfaceBrush}" Foreground="{StaticResource MutedBrush}" BorderThickness="0"
+                                        Command="{Binding DataContext.UseHistoryPromptCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                        CommandParameter="{Binding}"/>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </ScrollViewer>
+
+            <!-- Right: result -->
+            <Border Grid.Column="1" Background="{StaticResource SurfaceBrush}" CornerRadius="16">
+                <Grid Margin="16">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Grid Grid.Row="0">
+                        <Image Source="{Binding CurrentImage, Converter={StaticResource BytesToImage}}" Stretch="Uniform"/>
+                        <TextBlock Text="Type a prompt and hit Generate" Foreground="{StaticResource MutedBrush}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                                   Visibility="{Binding CurrentImage, Converter={x:Static conv:NullToVis.Instance}}"/>
+                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
+                                    Visibility="{Binding IsGenerating, Converter={x:Static conv:BoolToVis.Instance}}">
+                            <TextBlock Text="Generating…" Foreground="{StaticResource GoldBrush}" FontSize="18" HorizontalAlignment="Center"/>
+                        </StackPanel>
+                        <TextBlock Text="{Binding ErrorMessage}" Foreground="{StaticResource CrimsonBrush}"
+                                   VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,10" TextWrapping="Wrap"/>
+                    </Grid>
+
+                    <Button Grid.Row="1" Content="Save image" HorizontalAlignment="Right" Margin="0,12,0,0"
+                            Height="34" Width="120" Command="{Binding SaveCommand}"
+                            Background="{StaticResource BgBrush}" Foreground="{StaticResource GoldBrush}" BorderThickness="0"/>
+                </Grid>
+            </Border>
+        </Grid>
+
+        <!-- Bottom: gallery strip -->
+        <StackPanel Grid.Row="1" Margin="0,18,0,0"
+                    Visibility="{Binding GalleryItems.Count, Converter={x:Static conv:CountToVis.Instance}}">
+            <TextBlock Text="Gallery" Foreground="{StaticResource MutedBrush}" Margin="0,0,0,8"/>
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Height="128">
+                <ItemsControl ItemsSource="{Binding GalleryItems}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Grid Margin="0,0,10,0">
+                                <Border CornerRadius="8" ClipToBounds="True" Width="118" Height="118" Background="{StaticResource BgBrush}">
+                                    <Image Source="{Binding ImageFileName, Converter={StaticResource FileNameToImage}}" Stretch="UniformToFill"/>
+                                </Border>
+                                <Button Content="✕" Width="22" Height="22" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="4"
+                                        Background="{StaticResource BgBrush}" Foreground="{StaticResource CrimsonBrush}" BorderThickness="0" FontSize="11"
+                                        Command="{Binding DataContext.DeleteGalleryItemCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                        CommandParameter="{Binding}"/>
+                            </Grid>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </StackPanel>
     </Grid>
 </Window>

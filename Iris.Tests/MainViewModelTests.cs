@@ -50,4 +50,20 @@ public class MainViewModelTests : IDisposable
         vm.Prompt = "   ";
         Assert.False(vm.CanGenerate);
     }
+
+    [Fact]
+    public async Task Generate_RefreshesGalleryItems()
+    {
+        var vm = Vm(new FakeClient { Bytes = new byte[] { 1 } });
+        await vm.GenerateCommand.ExecuteAsync(null);
+        Assert.Single(vm.GalleryItems);
+    }
+
+    [Fact]
+    public void UseHistoryPrompt_SetsPrompt()
+    {
+        var vm = new MainViewModel(new FakeClient(), new GalleryStore(_root), new HistoryStore(_root));
+        vm.UseHistoryPromptCommand.Execute("a cat");
+        Assert.Equal("a cat", vm.Prompt);
+    }
 }
