@@ -83,6 +83,18 @@ public partial class MainViewModel : ObservableObject
         GalleryItems.Remove(item);
     }
 
+    [RelayCommand]
+    private void SelectGalleryItem(GalleryItem item)
+    {
+        if (IsGenerating) return;
+        var path = _gallery.ImagePath(item);
+        if (File.Exists(path))
+        {
+            CurrentImage = File.ReadAllBytes(path);
+            ErrorMessage = null;
+        }
+    }
+
     [RelayCommand(CanExecute = nameof(CanSave))]
     private void Save()
     {

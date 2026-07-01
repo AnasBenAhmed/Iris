@@ -66,4 +66,16 @@ public class MainViewModelTests : IDisposable
         vm.UseHistoryPromptCommand.Execute("a cat");
         Assert.Equal("a cat", vm.Prompt);
     }
+
+    [Fact]
+    public void SelectGalleryItem_LoadsImageAsCurrent()
+    {
+        var store = new GalleryStore(_root);
+        var vm = new MainViewModel(new FakeClient(), store, new HistoryStore(_root));
+        var item = store.Add(new GenerationRequest("x", StylePreset.None, AspectPreset.Square, 1), new byte[] { 5, 6, 7 });
+
+        vm.SelectGalleryItemCommand.Execute(item);
+
+        Assert.Equal(new byte[] { 5, 6, 7 }, vm.CurrentImage);
+    }
 }

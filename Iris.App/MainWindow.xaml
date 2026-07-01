@@ -23,12 +23,13 @@
             </Grid.ColumnDefinitions>
 
             <!-- Left: controls -->
-            <ScrollViewer Grid.Column="0" Margin="0,0,20,0" VerticalScrollBarVisibility="Auto">
+            <ScrollViewer Grid.Column="0" Margin="0,0,16,0" Padding="0,0,10,0" VerticalScrollBarVisibility="Auto">
                 <StackPanel>
-                    <TextBlock Text="IRIS" Foreground="{StaticResource GoldBrush}" FontSize="30" FontWeight="Bold"/>
-                    <TextBlock Text="AI image generator" Foreground="{StaticResource MutedBrush}" FontSize="12" Margin="2,0,0,0"/>
+                    <TextBlock TextWrapping="Wrap">
+                        <Run Text="IRIS" Foreground="{StaticResource GoldBrush}" FontSize="30" FontWeight="Bold"/><Run Text="  —  AI image generator" Foreground="{StaticResource MutedBrush}" FontSize="14"/>
+                    </TextBlock>
 
-                    <TextBlock Text="Describe your image" Foreground="{StaticResource MutedBrush}" Margin="0,18,0,6"/>
+                    <TextBlock Text="Describe your image" Foreground="{StaticResource MutedBrush}" Margin="0,20,0,6"/>
                     <TextBox Text="{Binding Prompt, UpdateSourceTrigger=PropertyChanged}"
                              AcceptsReturn="True" Height="110" TextWrapping="Wrap" VerticalContentAlignment="Top"
                              Background="{StaticResource SurfaceBrush}" Foreground="{StaticResource TextBrush}"
@@ -51,9 +52,11 @@
                         <RadioButton Content="Landscape" IsChecked="{Binding Aspect, Converter={StaticResource EnumToBool}, ConverterParameter=Landscape}" Foreground="{StaticResource TextBrush}"/>
                     </WrapPanel>
 
-                    <TextBlock Text="Seed" Foreground="{StaticResource MutedBrush}" Margin="0,16,0,6"/>
+                    <TextBlock Margin="0,16,0,6">
+                        <Run Text="Seed" Foreground="{StaticResource MutedBrush}"/><Run Text="  — same seed = same image; 🎲 for a new variation" Foreground="{StaticResource MutedBrush}" FontSize="10"/>
+                    </TextBlock>
                     <DockPanel>
-                        <Button DockPanel.Dock="Right" Content="🎲" Width="42" Height="34"
+                        <Button DockPanel.Dock="Right" Content="🎲" Width="42" Height="34" ToolTip="Randomize seed"
                                 Command="{Binding RandomizeSeedCommand}"
                                 Background="{StaticResource SurfaceBrush}" Foreground="{StaticResource TextBrush}" BorderThickness="0"/>
                         <TextBox Text="{Binding Seed}" Background="{StaticResource SurfaceBrush}" Foreground="{StaticResource TextBrush}"
@@ -75,7 +78,7 @@
                         </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Button Content="{Binding}" MaxWidth="330" Margin="0,0,6,6" Padding="8,4"
+                                <Button Content="{Binding}" MaxWidth="320" Margin="0,0,6,6" Padding="8,4" Cursor="Hand"
                                         Background="{StaticResource SurfaceBrush}" Foreground="{StaticResource MutedBrush}" BorderThickness="0"
                                         Command="{Binding DataContext.UseHistoryPromptCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                         CommandParameter="{Binding}"/>
@@ -98,37 +101,70 @@
                         <TextBlock Text="Type a prompt and hit Generate" Foreground="{StaticResource MutedBrush}"
                                    HorizontalAlignment="Center" VerticalAlignment="Center"
                                    Visibility="{Binding CurrentImage, Converter={x:Static conv:NullToVis.Instance}}"/>
-                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
-                                    Visibility="{Binding IsGenerating, Converter={x:Static conv:BoolToVis.Instance}}">
-                            <TextBlock Text="Generating…" Foreground="{StaticResource GoldBrush}" FontSize="18" HorizontalAlignment="Center"/>
-                        </StackPanel>
                         <TextBlock Text="{Binding ErrorMessage}" Foreground="{StaticResource CrimsonBrush}"
                                    VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,10" TextWrapping="Wrap"/>
+
+                        <!-- Generating overlay: hides the image and shows the spinner -->
+                        <Border Background="{StaticResource SurfaceBrush}" CornerRadius="8"
+                                Visibility="{Binding IsGenerating, Converter={x:Static conv:BoolToVis.Instance}}">
+                            <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                                <Ellipse Width="58" Height="58" StrokeThickness="5" StrokeDashArray="12 5" StrokeDashCap="Round" RenderTransformOrigin="0.5,0.5">
+                                    <Ellipse.Stroke>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="{StaticResource CrimsonColor}" Offset="0"/>
+                                            <GradientStop Color="{StaticResource GoldColor}" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Ellipse.Stroke>
+                                    <Ellipse.RenderTransform>
+                                        <RotateTransform Angle="0"/>
+                                    </Ellipse.RenderTransform>
+                                    <Ellipse.Triggers>
+                                        <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                                            <BeginStoryboard>
+                                                <Storyboard>
+                                                    <DoubleAnimation Storyboard.TargetProperty="(UIElement.RenderTransform).(RotateTransform.Angle)"
+                                                                     From="0" To="360" Duration="0:0:1.1" RepeatBehavior="Forever"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </EventTrigger>
+                                    </Ellipse.Triggers>
+                                </Ellipse>
+                                <TextBlock Text="Generating…" Foreground="{StaticResource GoldBrush}" FontSize="15" HorizontalAlignment="Center" Margin="0,16,0,0"/>
+                            </StackPanel>
+                        </Border>
                     </Grid>
 
                     <Button Grid.Row="1" Content="Save image" HorizontalAlignment="Right" Margin="0,12,0,0"
-                            Height="34" Width="120" Command="{Binding SaveCommand}"
+                            Height="34" Width="120" Command="{Binding SaveCommand}" Cursor="Hand"
                             Background="{StaticResource BgBrush}" Foreground="{StaticResource GoldBrush}" BorderThickness="0"/>
                 </Grid>
             </Border>
         </Grid>
 
-        <!-- Bottom: gallery strip -->
+        <!-- Bottom: gallery strip (click a tile to view it) -->
         <StackPanel Grid.Row="1" Margin="0,18,0,0"
                     Visibility="{Binding GalleryItems.Count, Converter={x:Static conv:CountToVis.Instance}}">
             <TextBlock Text="Gallery" Foreground="{StaticResource MutedBrush}" Margin="0,0,0,8"/>
-            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Height="128">
+            <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled" Height="134" Padding="0,0,0,8">
                 <ItemsControl ItemsSource="{Binding GalleryItems}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate><StackPanel Orientation="Horizontal"/></ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Grid Margin="0,0,10,0">
-                                <Border CornerRadius="8" ClipToBounds="True" Width="118" Height="118" Background="{StaticResource BgBrush}">
-                                    <Image Source="{Binding ImageFileName, Converter={StaticResource FileNameToImage}}" Stretch="UniformToFill"/>
-                                </Border>
-                                <Button Content="✕" Width="22" Height="22" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="4"
+                            <Grid Width="118" Height="118" Margin="0,0,10,0">
+                                <Button Cursor="Hand" Padding="0" BorderThickness="0" Background="Transparent" ToolTip="{Binding Prompt}"
+                                        Command="{Binding DataContext.SelectGalleryItemCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                        CommandParameter="{Binding}">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border CornerRadius="8" ClipToBounds="True" Background="{StaticResource BgBrush}">
+                                                <Image Source="{Binding ImageFileName, Converter={StaticResource FileNameToImage}}" Stretch="UniformToFill"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                                <Button Content="✕" Width="22" Height="22" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="4" Cursor="Hand"
                                         Background="{StaticResource BgBrush}" Foreground="{StaticResource CrimsonBrush}" BorderThickness="0" FontSize="11"
                                         Command="{Binding DataContext.DeleteGalleryItemCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                         CommandParameter="{Binding}"/>
