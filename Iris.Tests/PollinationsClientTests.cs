@@ -10,7 +10,7 @@ public class PollinationsClientBuildUrlTests
     public void BuildUrl_EncodesPrompt_AndAddsParams()
     {
         var req = new GenerationRequest("a red fox", StylePreset.None, AspectPreset.Square, 42);
-        var url = _client.BuildUrl(req).ToString();
+        var url = _client.BuildUrl(req).AbsoluteUri;
 
         Assert.StartsWith("https://image.pollinations.ai/prompt/", url);
         Assert.Contains("a%20red%20fox", url);
@@ -25,7 +25,7 @@ public class PollinationsClientBuildUrlTests
     public void BuildUrl_PortraitUsesPortraitSize()
     {
         var req = new GenerationRequest("x", StylePreset.None, AspectPreset.Portrait, 1);
-        var url = _client.BuildUrl(req).ToString();
+        var url = _client.BuildUrl(req).AbsoluteUri;
         Assert.Contains("width=768", url);
         Assert.Contains("height=1024", url);
     }
