@@ -23,6 +23,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Iris.Core\Iris.Core.csproj" />
+    <ProjectReference Include="..\Iris.App\Iris.App.csproj" />
   </ItemGroup>
 
 </Project>
