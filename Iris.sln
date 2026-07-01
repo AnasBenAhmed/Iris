@@ -1,0 +1,34 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Iris.Core", "Iris.Core\Iris.Core.csproj", "{7DD061C9-09FA-4674-8AE3-AA2794FD6038}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Iris.App", "Iris.App\Iris.App.csproj", "{72AE078A-56E9-4E00-B0B7-BC0BF0A3E9C4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Iris.Tests", "Iris.Tests\Iris.Tests.csproj", "{4FCA748C-3706-4024-B5E8-403986B35044}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{7DD061C9-09FA-4674-8AE3-AA2794FD6038}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7DD061C9-09FA-4674-8AE3-AA2794FD6038}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7DD061C9-09FA-4674-8AE3-AA2794FD6038}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7DD061C9-09FA-4674-8AE3-AA2794FD6038}.Release|Any CPU.Build.0 = Release|Any CPU
+		{72AE078A-56E9-4E00-B0B7-BC0BF0A3E9C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{72AE078A-56E9-4E00-B0B7-BC0BF0A3E9C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{72AE078A-56E9-4E00-B0B7-BC0BF0A3E9C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{72AE078A-56E9-4E00-B0B7-BC0BF0A3E9C4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4FCA748C-3706-4024-B5E8-403986B35044}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4FCA748C-3706-4024-B5E8-403986B35044}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4FCA748C-3706-4024-B5E8-403986B35044}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4FCA748C-3706-4024-B5E8-403986B35044}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
