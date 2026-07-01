@@ -25,9 +25,10 @@
             <!-- Left: controls -->
             <ScrollViewer Grid.Column="0" Margin="0,0,16,0" Padding="0,0,10,0" VerticalScrollBarVisibility="Auto">
                 <StackPanel>
-                    <TextBlock TextWrapping="Wrap">
-                        <Run Text="IRIS" Foreground="{StaticResource GoldBrush}" FontSize="30" FontWeight="Bold"/><Run Text="  —  AI image generator" Foreground="{StaticResource MutedBrush}" FontSize="14"/>
-                    </TextBlock>
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="IRIS" Foreground="{StaticResource GoldBrush}" FontSize="30" FontWeight="Bold" VerticalAlignment="Center"/>
+                        <TextBlock Text="  —  AI image generator" Foreground="{StaticResource MutedBrush}" FontSize="14" VerticalAlignment="Center"/>
+                    </StackPanel>
 
                     <TextBlock Text="Describe your image" Foreground="{StaticResource MutedBrush}" Margin="0,20,0,6"/>
                     <TextBox Text="{Binding Prompt, UpdateSourceTrigger=PropertyChanged}"
